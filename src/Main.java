@@ -8,3 +8,4 @@ public class Main {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
+9
