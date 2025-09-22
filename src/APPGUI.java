@@ -2,11 +2,10 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
 
- class AppGUI extends JFrame implements ActionListener {
-
+class AppGUI extends JFrame implements ActionListener {
     private final JLabel studentIdLabel, firstNameLabel, lastNameLabel, majorLabel, phoneLabel, gpaLabel, dobLabel;
     private final JTextField studentIdField, firstNameField, lastNameField, majorField, phoneField, gpaField, dobField;
-    private final JButton addButton, displayButton, sortButton, searchButton, modifyButton;
+    private final JButton addButton, displayButton, sortButton, searchButton, modifyButton, deleteButton; // added deleteButton
     private Statement stmt;
 
     public AppGUI() {
@@ -37,6 +36,7 @@ import java.sql.*;
         sortButton = new JButton("Sort");
         searchButton = new JButton("Search");
         modifyButton = new JButton("Modify");
+        deleteButton = new JButton("Delete"); // new button
 
         // Add action listeners
         addButton.addActionListener(this);
@@ -44,6 +44,7 @@ import java.sql.*;
         sortButton.addActionListener(this);
         searchButton.addActionListener(this);
         modifyButton.addActionListener(this);
+        deleteButton.addActionListener(this); // new listener
 
         // Add components to panel
         panel.add(studentIdLabel);
@@ -60,11 +61,13 @@ import java.sql.*;
         panel.add(gpaField);
         panel.add(dobLabel);
         panel.add(dobField);
+
         panel.add(addButton);
         panel.add(displayButton);
         panel.add(sortButton);
         panel.add(searchButton);
         panel.add(modifyButton);
+        panel.add(deleteButton); // add to panel
 
         // Add panel to frame
         this.add(panel);
@@ -94,7 +97,6 @@ import java.sql.*;
         Table tb = new Table();
 
         if (e.getSource() == addButton) {
-            // Insert new student into database
             String sql = "INSERT INTO students VALUES('" + studentIdField.getText() + "', '"
                     + firstNameField.getText() + "', '" + lastNameField.getText() + "', '"
                     + majorField.getText() + "', '" + phoneField.getText() + "', '"
@@ -105,9 +107,7 @@ import java.sql.*;
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error inserting data: " + ex.getMessage());
             }
-
         } else if (e.getSource() == displayButton) {
-            // Display all data
             String sql = "SELECT * FROM students";
             try {
                 ResultSet rs = stmt.executeQuery(sql);
@@ -116,9 +116,7 @@ import java.sql.*;
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error displaying data: " + ex.getMessage());
             }
-
         } else if (e.getSource() == sortButton) {
-            // Sort data
             String[] options = {"First Name", "Last Name", "Major"};
             int choice = JOptionPane.showOptionDialog(this, "Sort by:", "Sort",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -137,9 +135,7 @@ import java.sql.*;
                     JOptionPane.showMessageDialog(this, "Error sorting data: " + ex.getMessage());
                 }
             }
-
         } else if (e.getSource() == searchButton) {
-            // Search data
             String[] options = {"Student ID", "Last Name", "Major"};
             int choice = JOptionPane.showOptionDialog(this, "Search by:", "Search",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -158,9 +154,7 @@ import java.sql.*;
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error searching data: " + ex.getMessage());
             }
-
         } else if (e.getSource() == modifyButton) {
-            // Modify data
             String studentId = JOptionPane.showInputDialog(this, "Enter student ID:");
             String sql = "SELECT * FROM students WHERE student_id = '" + studentId + "'";
             try {
@@ -187,6 +181,21 @@ import java.sql.*;
                 }
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error modifying data: " + ex.getMessage());
+            }
+        } else if (e.getSource() == deleteButton) { // new delete logic
+            String studentId = JOptionPane.showInputDialog(this, "Enter Student ID to delete:");
+            if (studentId != null && !studentId.isEmpty()) {
+                String sql = "DELETE FROM students WHERE student_id = '" + studentId + "'";
+                try {
+                    int rowsAffected = stmt.executeUpdate(sql);
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Student deleted successfully.");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Student not found.");
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this, "Error deleting student: " + ex.getMessage());
+                }
             }
         }
     }
